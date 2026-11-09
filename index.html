@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Launch Countdown · HE-Systems</title>
+    <meta name="description" content="Agents At Work, Something is cooking. Website is underconstruction. Scheduled Public Launch: Sunday, 15 November 2026.">
+    <link rel="canonical" href="https://harryefe.github.io/launch/">
+    <link rel="icon" type="image/png" href="assets/logo/logo_amber_symbol.png">
+
+    <!-- OpenGraph & Social Sharing Meta Tags -->
+    <meta property="og:title" content="Agents At Work, Something is cooking · HE-Systems">
+    <meta property="og:description" content="Website is underconstruction. Scheduled Public Launch: Sunday, 15 November 2026.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://harryefe.github.io/launch/">
+    <meta property="og:image" content="https://harryefe.github.io/launch/assets/logo/logo_amber_symbol.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Agents At Work, Something is cooking · HE-Systems">
+    <meta name="twitter:description" content="Website is underconstruction. Scheduled Public Launch: Sunday, 15 November 2026.">
+    <meta name="twitter:image" content="https://harryefe.github.io/launch/assets/logo/logo_amber_symbol.png">
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            background-color: #000000;
+            color: #ffffff;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        #digit-stream-canvas, #ascii-canvas, .stream-canvas {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            z-index: 1;
+            pointer-events: none;
+            display: block;
+        }
+        .header-nav {
+            position: relative;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: clamp(0.5rem, 1.5vh, 1.25rem) clamp(1rem, 3vw, 2rem);
+            flex-shrink: 0;
+            pointer-events: auto;
+        }
+        .brand-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: clamp(0.85rem, 1.2vw, 0.95rem);
+            letter-spacing: -0.01em;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.85);
+        }
+        .brand-pill img {
+            width: clamp(20px, 2.5vh, 24px);
+            height: clamp(20px, 2.5vh, 24px);
+            filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.45));
+        }
+        .main-stage {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            flex: 1 1 0%;
+            min-height: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: clamp(0.4rem, 1.2vh, 1.5rem) clamp(0.75rem, 2vw, 1.5rem);
+            box-sizing: border-box;
+        }
+        .select-none {
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .countdown-stage-root {
+            width: 100%;
+            max-width: 56rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .countdown-wrapper {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .countdown-header-block {
+            text-align: center;
+            margin-bottom: 0.75rem;
+            max-width: 42rem;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        @media (min-width: 640px) {
+            .countdown-header-block {
+                margin-bottom: 1.5rem;
+            }
+        }
+        @media (min-width: 768px) {
+            .countdown-header-block {
+                margin-bottom: 2rem;
+            }
+        }
+        .countdown-heading {
+            font-size: 1.25rem;
+            line-height: 1.2;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            color: #ffffff;
+            margin-bottom: 0.375rem;
+            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8);
+        }
+        @media (min-width: 640px) {
+            .countdown-heading {
+                font-size: 1.875rem;
+                margin-bottom: 0.75rem;
+            }
+        }
+        @media (min-width: 768px) {
+            .countdown-heading {
+                font-size: 3rem;
+            }
+        }
+        .countdown-subtitle {
+            color: #d4d4d4;
+            font-size: 0.75rem;
+            line-height: 1.625;
+            max-width: 32rem;
+            margin-left: auto;
+            margin-right: auto;
+            font-weight: 500;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+        }
+        @media (min-width: 640px) {
+            .countdown-subtitle {
+                font-size: 1rem;
+            }
+        }
+        @media (min-width: 768px) {
+            .countdown-subtitle {
+                font-size: 1.125rem;
+            }
+        }
+        .countdown-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.625rem;
+            width: 100%;
+            max-width: 48rem;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+        }
+        @media (min-width: 640px) {
+            .countdown-grid {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: 1rem;
+                max-width: 56rem;
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+        }
+        @media (min-width: 768px) {
+            .countdown-grid {
+                gap: 1.25rem;
+            }
+        }
+        @media (max-height: 520px) {
+            .header-nav {
+                padding-top: 0.25rem;
+                padding-bottom: 0.25rem;
+            }
+            .countdown-header-block {
+                margin-bottom: 0.35rem !important;
+            }
+            .countdown-heading {
+                font-size: 1.1rem !important;
+                margin-bottom: 0.15rem !important;
+            }
+            .countdown-subtitle {
+                font-size: 0.72rem !important;
+            }
+            .countdown-grid {
+                max-width: 540px !important;
+                gap: 0.4rem !important;
+            }
+        }
+        @media (max-height: 420px) {
+            .header-nav {
+                padding-top: 0.15rem;
+                padding-bottom: 0.15rem;
+            }
+            .brand-pill {
+                font-size: 0.75rem !important;
+            }
+            .brand-pill img {
+                width: 16px !important;
+                height: 16px !important;
+            }
+            .countdown-header-block {
+                margin-bottom: 0.2rem !important;
+            }
+            .countdown-heading {
+                font-size: 0.85rem !important;
+                margin-bottom: 0.1rem !important;
+            }
+            .countdown-subtitle {
+                font-size: 0.65rem !important;
+            }
+            .countdown-grid {
+                grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+                max-width: 440px !important;
+                gap: 0.3rem !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Live DigitStream Particle Background Canvas -->
+    <canvas id="digit-stream-canvas" class="stream-canvas"></canvas>
+
+    <header class="header-nav">
+        <div class="brand-pill select-none">
+            <img src="assets/logo/logo_amber_symbol.png" alt="HE-Systems Logo">
+            <span>HE-Systems</span>
+        </div>
+    </header>
+
+    <main class="main-stage">
+        <noscript>
+            <div style="position:relative;z-index:20;text-align:center;padding:2rem 1rem;max-width:36rem;margin:auto;">
+                <h1 style="font-size:clamp(1.5rem,4vw,2.5rem);font-weight:800;letter-spacing:-0.025em;color:#ffffff;margin-bottom:0.75rem;">Agents At Work, Something is cooking</h1>
+                <p style="font-size:clamp(0.95rem,2vw,1.15rem);color:#d4d4d4;line-height:1.6;margin-bottom:1.5rem;">Website is underconstruction</p>
+                <div style="display:inline-block;padding:0.75rem 1.25rem;border-radius:0.75rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:#38bdf8;font-family:'JetBrains Mono',monospace;font-size:0.85rem;letter-spacing:0.04em;">
+                    Target Launch: Sunday, 15 November 2026 (00:00:00 UTC)
+                </div>
+            </div>
+        </noscript>
+        <div id="root" class="w-full max-w-4xl flex flex-col items-center justify-center"></div>
+    </main>
+
+    <!-- DigitStream Engine Port -->
+    <script>
+    (function() {
+        const DEFAULTS = {
+            particleCount: 750,
+            speed: 0.4,
+            flowStrength: 0.5,
+            disperseStrength: 1,
+            idleDim: 0.6,
+            snakeAmplitude: 0.5,
+            color: '#ebeeff',
+            background: '#000000',
+            colorfulSparks: true,
+        };
+
+        const TAU = Math.PI * 2;
+        const WAVES = 2.4;
+        const WAVES2 = 5.5;
+        const PHASE = -0.35;
+        const PHASE2 = 0.2;
+        const WAVESY = 3;
+        const AMPY = 0.02;
+        const IDLE_MS = 160;
+
+        function pathPoint(t, amp) {
+            const amp2 = amp * 0.37;
+            return {
+                x: 0.5 + amp * Math.sin((t * WAVES + PHASE) * TAU) + amp2 * Math.sin((t * WAVES2 + PHASE2) * TAU),
+                y: -0.06 + t * 1.12 + AMPY * Math.sin(t * WAVESY * TAU),
+            };
+        }
+
+        function pathTangent(t, amp) {
+            const e = 0.001;
+            const a = pathPoint(Math.max(0, t - e), amp);
+            const b = pathPoint(Math.min(1, t + e), amp);
+            const dx = b.x - a.x;
+            const dy = b.y - a.y;
+            const len = Math.hypot(dx, dy) || 1;
+            return { x: dx / len, y: dy / len };
+        }
+
+        const rand = (a, b) => a + Math.random() * (b - a);
+        const randDigit = () =>
+            Math.random() < 0.5 ? (Math.random() < 0.5 ? '7' : '0') : String(Math.floor(Math.random() * 10));
+
+        function spawn() {
+            const wide = Math.random() < 0.28;
+            const t = Math.random();
+            return {
+                t,
+                off: wide ? rand(-0.16, 0.16) : rand(-0.03, 0.03),
+                speed: rand(0.0001, 0.0004),
+                size: Math.round(rand(7, 13)),
+                hue: rand(190, 320),
+                colorful: Math.random() < 0.3 && t < 0.55,
+                life: rand(0.5, 1),
+                wAmp: rand(0.02, 0.1),
+                wFreq: rand(1.5, 5),
+                wPhase: rand(0, TAU),
+                ch: randDigit(),
+                dAx: rand(0.06, 0.24) * (Math.random() < 0.5 ? -1 : 1),
+                dAy: rand(0.02, 0.09) * (Math.random() < 0.5 ? -1 : 1),
+                dFx: rand(0.3, 1.1),
+                dFy: rand(0.3, 1.1),
+                dPx: rand(0, TAU),
+                dPy: rand(0, TAU),
+            };
+        }
+
+        function hexToRgb(hex, fb) {
+            const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex || '');
+            return m ? [parseInt(m[1], 16), parseInt(m[2], 16), parseInt(m[3], 16)] : fb;
+        }
+
+        class DigitStreamEngine {
+            constructor(canvas, options = {}) {
+                this.canvas = canvas;
+                this.ctx = canvas.getContext('2d');
+                this.params = { ...DEFAULTS, ...options };
+                this.dims = { w: 0, h: 0 };
+                this.particles = [];
+                this.bright = 1;
+                this.disperse = 0;
+                this.drift = 0;
+                this.flow = 0;
+                this.lastActivity = performance.now();
+                this.raf = null;
+
+                this.init();
+            }
+
+            init() {
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+
+                const target = Math.max(1, Math.round(this.params.particleCount));
+                this.particles = Array.from({ length: target }, spawn);
+
+                let lastScrollY = window.scrollY;
+                const bump = (delta) => {
+                    this.flow += delta * 0.0007 * this.params.flowStrength;
+                    this.lastActivity = performance.now();
+                };
+                window.addEventListener('scroll', () => {
+                    bump(window.scrollY - lastScrollY);
+                    lastScrollY = window.scrollY;
+                }, { passive: true });
+                window.addEventListener('wheel', (e) => bump(e.deltaY), { passive: true });
+
+                let lastTouchY = 0;
+                window.addEventListener('touchstart', (e) => {
+                    if (e.touches && e.touches.length > 0) lastTouchY = e.touches[0].clientY;
+                }, { passive: true });
+                window.addEventListener('touchmove', (e) => {
+                    if (e.touches && e.touches.length > 0) {
+                        const delta = lastTouchY - e.touches[0].clientY;
+                        bump(delta);
+                        lastTouchY = e.touches[0].clientY;
+                    }
+                }, { passive: true });
+
+                this.start();
+            }
+
+            resize() {
+                const r = this.canvas.getBoundingClientRect();
+                const dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+                const w = r.width || window.innerWidth;
+                const h = r.height || window.innerHeight;
+                this.dims = { w, h };
+                this.canvas.width = Math.max(1, Math.round(w * dpr));
+                this.canvas.height = Math.max(1, Math.round(h * dpr));
+                if (this.ctx) {
+                    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                    const [br, bg2, bb] = hexToRgb(this.params.background, [0, 0, 0]);
+                    this.ctx.fillStyle = `rgb(${br},${bg2},${bb})`;
+                    this.ctx.fillRect(0, 0, w, h);
+                }
+            }
+
+            start() {
+                const frame = () => {
+                    this.raf = requestAnimationFrame(frame);
+                    const c2 = this.ctx;
+                    if (!c2) return;
+                    const { w, h } = this.dims;
+                    if (!w || !h) return;
+
+                    const P = this.params;
+                    const amp = P.snakeAmplitude * 0.3;
+                    const speedK = P.speed / 0.4;
+                    const idle = performance.now() - this.lastActivity > IDLE_MS;
+                    this.bright += ((idle ? P.idleDim : 1) - this.bright) * (idle ? 0.03 : 0.12);
+                    this.disperse += ((idle ? 1 : 0) - this.disperse) * (idle ? 0.01 : 0.06);
+                    this.drift += 0.02;
+                    const disp = this.disperse * P.disperseStrength;
+                    const dt = this.drift;
+                    const [cr, cg, cb] = hexToRgb(P.color, [235, 238, 255]);
+                    const [br, bg2, bb] = hexToRgb(P.background, [0, 0, 0]);
+
+                    c2.globalCompositeOperation = 'source-over';
+                    c2.fillStyle = `rgba(${br},${bg2},${bb},0.14)`;
+                    c2.fillRect(0, 0, w, h);
+
+                    c2.globalCompositeOperation = 'lighter';
+                    c2.textAlign = 'center';
+                    c2.textBaseline = 'middle';
+                    const spark = P.colorfulSparks;
+
+                    for (const pt of this.particles) {
+                        pt.t += pt.speed * speedK;
+                        if (pt.t >= 1) pt.t -= 1;
+                        if (Math.random() < 0.003) pt.ch = randDigit();
+                        let et = pt.t + this.flow;
+                        et -= Math.floor(et);
+                        const c = pathPoint(et, amp);
+                        const tan = pathTangent(et, amp);
+                        const wander = pt.wAmp * Math.sin(et * pt.wFreq * TAU + pt.wPhase);
+                        const totalOff = pt.off + wander;
+                        const wx = disp * pt.dAx * Math.sin(dt * pt.dFx + pt.dPx);
+                        const wy = disp * pt.dAy * Math.sin(dt * pt.dFy + pt.dPy);
+                        const x = (c.x + -tan.y * totalOff + wx) * w;
+                        const y = (c.y + tan.x * totalOff + wy) * h;
+                        const coreFade = 1 - Math.min(1, Math.abs(totalOff) / 0.22);
+                        const alpha = (0.25 * coreFade * pt.life + 0.02) * this.bright;
+                        c2.font = `${pt.size}px ui-monospace, "SFMono-Regular", Menlo, monospace`;
+                        c2.fillStyle = spark && pt.colorful
+                            ? `hsla(${pt.hue}, 60%, 66%, ${alpha})`
+                            : `rgba(${cr},${cg},${cb},${alpha})`;
+                        c2.fillText(pt.ch, x, y);
+                    }
+                };
+                this.raf = requestAnimationFrame(frame);
+            }
+        }
+
+        window.DigitStreamEngine = DigitStreamEngine;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const canvas = document.getElementById('digit-stream-canvas') || document.getElementById('ascii-canvas');
+            if (canvas) {
+                window.digitStreamEngine = new DigitStreamEngine(canvas);
+            }
+        });
+    })();
+    </script>
+
+    <!-- React Countdown App with Louis Studios Dot-Matrix Glass Architecture (Precompiled) -->
+    <script>
+        const e = React.createElement;
+        const TW = 206;
+        const TH = 204;
+        const GAP = 4;
+        const PAD = 19.5;
+        const PITCH = 7.35;
+        const DOT_R = 3.08;
+        const VAL_X = 22.5;
+        const VAL_Y = 89.1;
+        const VAL_MAX_W = 140;
+
+        const u = (n) => `calc(${+(n / TW).toFixed(5)} * 100cqw)`;
+
+        const GLYPHS = {
+          "0": [".XXX.", "X...X", "X...X", "X...X", "X...X", "X...X", ".XXX."],
+          "1": ["..X..", ".XX..", "X.X..", "..X..", "..X..", "..X..", "XXXXX"],
+          "2": [".XXX.", "X...X", "....X", "..XX.", ".X...", "X....", "XXXXX"],
+          "3": ["XXXXX", "....X", "...X.", "..XX.", "....X", "X...X", ".XXX."],
+          "4": ["...X", "..XX", ".X.X", "X..X", "XXXX", "...X", "...X"],
+          "5": ["XXXXX", "X....", "X.XX.", "XX..X", "....X", "X...X", ".XXX."],
+          "6": ["..XX.", ".X...", "X....", "X.XX.", "XX..X", "X...X", ".XXX."],
+          "7": ["XXXXX", "....X", "...X.", "...X.", "..X..", ".X...", ".X..."],
+          "8": [".XXX.", "X...X", "X...X", ".XXX.", "X...X", "X...X", ".XXX."],
+          "9": [".XXX.", "X...X", "X..XX", ".XX.X", "....X", "...X.", ".XX.."],
+          ":": [".", ".", "X", ".", "X", ".", "."],
+          ".": [".", ".", ".", ".", ".", ".", "X"],
+          "-": ["...", "...", "...", "XXX", "...", "...", "..."],
+          " ": [".....", ".....", ".....", ".....", ".....", ".....", "....."],
+        };
+
+        function layoutText(s) {
+          const on = new Set();
+          let x = 0;
+          let first = true;
+          for (const ch of s) {
+            const g = GLYPHS[ch] ?? GLYPHS[" "];
+            if (!first) x += 1;
+            first = false;
+            const w = g[0].length;
+            for (let r = 0; r < 7; r++) {
+              for (let c = 0; c < w; c++) {
+                if (g[r][c] === "X") on.add(r * 64 + x + c);
+              }
+            }
+            x += w;
+          }
+          return { cols: x, on };
+        }
+
+        function Icon({ name }) {
+          const common = { viewBox: "0 0 24 24", width: "100%", height: "100%", "aria-hidden": "true", style: { display: "block", overflow: "visible" } };
+          switch (name) {
+            case "spark":
+              return e("svg", common,
+                e("path", { fill: "currentColor", d: "M12 1.2c.9 5.9 4.9 9.9 10.8 10.8-5.9.9-9.9 4.9-10.8 10.8C11.1 16.9 7.1 12.9 1.2 12 7.1 11.1 11.1 7.1 12 1.2Z" })
+              );
+            case "clock":
+              return e("svg", common,
+                e("circle", { cx: "12", cy: "12", r: "9.6", fill: "none", stroke: "currentColor", strokeWidth: "2.3" }),
+                e("path", { d: "M11.6 6.2v6.4l3.4 2.6", fill: "none", stroke: "currentColor", strokeWidth: "2.3", strokeLinecap: "round", strokeLinejoin: "round" })
+              );
+            case "pulse":
+              return e("svg", common,
+                e("path", { d: "M0.8 12.4h4.4l1.7-6.6 2.9 13 2.6-10.4 1.6 5 1.5-2.4h2.6", fill: "none", stroke: "currentColor", strokeWidth: "1.9", strokeLinejoin: "round", strokeLinecap: "round" }),
+                e("circle", { cx: "20.9", cy: "11.6", r: "2.3", fill: "currentColor" })
+              );
+            case "bolt":
+              return e("svg", common,
+                e("path", { fill: "currentColor", d: "M15.2 1 4.6 13.6h6.2L8.9 23 19.6 10.2h-6.3L15.2 1Z" })
+              );
+            default:
+              return null;
+          }
+        }
+
+        const CSS = `
+        .lsdt-grid{display:grid;width:100%;container-type:inline-size}
+        .lsdt-tile{position:relative;container-type:inline-size;aspect-ratio:${TW}/${TH};border-radius:14.6%/14.75%;isolation:isolate;
+          color:var(--dt-ink,#fff);
+          background:linear-gradient(135deg,rgba(255,255,255,0.08) 0%,rgba(255,255,255,0.02) 100%), rgba(10,10,12,0.85);
+          border:1px solid rgba(255,255,255,0.12);
+          box-shadow:inset 0 1px 0 rgba(255,255,255,0.18), 0 16px 36px -4px rgba(0,0,0,0.8);
+          backdrop-filter:blur(18px);
+          -webkit-backdrop-filter:blur(18px);
+          display:flex;align-items:center;justify-content:center}
+        .lsdt-stage{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
+        .lsdt-t{position:absolute;font-weight:600;font-size:${u(12.8)};line-height:1;letter-spacing:-0.01em;white-space:nowrap;color:var(--dt-ink,#fff)}
+        .lsdt-sub{position:absolute;font-weight:500;font-size:${u(9.6)};line-height:1;letter-spacing:-0.005em;white-space:nowrap;color:rgba(255,255,255,0.48)}
+        .lsdt-unit{position:absolute;right:${u(PAD)};font-weight:500;font-size:${u(9.6)};line-height:1;color:rgba(255,255,255,0.48)}
+        .lsdt-lab{position:absolute;bottom:${u(19.5)};font-weight:500;font-size:${u(8.8)};line-height:1;color:rgba(255,255,255,0.36)}
+        `;
+
+        function DotTile({ title, subtitle, value, icon, unit, visual, tileColor, dotColor }) {
+          const { cols, on } = React.useMemo(() => layoutText(String(value)), [value]);
+          const rawW = cols * PITCH;
+          const scale = rawW > VAL_MAX_W ? VAL_MAX_W / rawW : 1;
+
+          const circles = Array.from({ length: cols * 7 }, (_, i) => {
+            const r = Math.floor(i / cols);
+            const c = i % cols;
+            const isLit = on.has(r * 64 + c);
+            return e("circle", {
+              key: i,
+              cx: c + 0.5,
+              cy: r + 0.5,
+              r: isLit ? DOT_R / PITCH : 0.08,
+              fill: "currentColor",
+              opacity: isLit ? 1 : 0.12
+            });
+          });
+
+          const svgElem = e("svg", {
+            "aria-hidden": "true",
+            viewBox: `0 0 ${cols} 7`,
+            style: {
+              position: "absolute",
+              left: u(VAL_X - (PITCH * scale) / 2),
+              top: u(VAL_Y - (PITCH * scale) / 2),
+              width: u(cols * PITCH * scale),
+              height: u(7 * PITCH * scale),
+              overflow: "visible",
+              display: "block",
+              color: "var(--dt-ink)"
+            }
+          }, circles);
+
+          const stageChildren = [
+            e("span", { key: "title", className: "lsdt-t", style: { left: u(PAD), top: u(18.5) } }, title),
+            e("span", { key: "sub", className: "lsdt-sub", style: { left: u(PAD), top: u(35.5) } }, subtitle),
+            svgElem,
+            icon ? e("span", { key: "icon", style: { position: "absolute", left: u(170), top: u(90), width: u(14), height: u(14), color: "var(--dt-ink)" } }, e(Icon, { name: icon })) : null,
+            unit ? e("span", { key: "unit", className: "lsdt-unit", style: { top: u(118) } }, unit) : null,
+            visual && visual.labels ? e(React.Fragment, { key: "labels" },
+              e("span", { className: "lsdt-lab", style: { left: u(PAD) } }, visual.labels[0]),
+              e("span", { className: "lsdt-lab", style: { right: u(PAD) } }, visual.labels[1])
+            ) : null
+          ];
+
+          return e("div", { className: "lsdt-tile", style: { "--dt-ink": dotColor || "#ffffff" } },
+            e("div", { className: "lsdt-stage" }, stageChildren)
+          );
+        }
+
+        function getTargetLaunchTime() {
+          // Sunday morning, November 15, 2026, 00:00:00 UTC / GMT
+          const target = new Date(Date.UTC(2026, 10, 15, 0, 0, 0));
+          if (target.getTime() <= Date.now()) {
+            const nextSunday = new Date();
+            const currentDay = nextSunday.getUTCDay(); // 0 is Sun
+            const daysUntilSunday = (0 - currentDay + 7) % 7 || 7;
+            nextSunday.setUTCDate(nextSunday.getUTCDate() + daysUntilSunday);
+            nextSunday.setUTCHours(0, 0, 0, 0);
+            return nextSunday.getTime();
+          }
+          return target.getTime();
+        }
+
+        window.getTargetLaunchTime = getTargetLaunchTime;
+
+        function calculateTimeLeft(targetMs) {
+          const diff = Math.max(0, targetMs - Date.now());
+          return {
+            days: Math.floor(diff / 86400000),
+            hours: Math.floor((diff / 3600000) % 24),
+            minutes: Math.floor((diff / 60000) % 60),
+            seconds: Math.floor((diff / 1000) % 60),
+            totalMs: diff
+          };
+        }
+
+        function CountdownApp() {
+          const targetTime = React.useMemo(() => getTargetLaunchTime(), []);
+          const [timeLeft, setTimeLeft] = React.useState(() => calculateTimeLeft(targetTime));
+
+          React.useEffect(() => {
+            const timer = setInterval(() => {
+              setTimeLeft(calculateTimeLeft(targetTime));
+            }, 1000);
+            return () => clearInterval(timer);
+          }, [targetTime]);
+
+          const tiles = [
+            { title: "Days", subtitle: "Target Launch", value: String(timeLeft.days).padStart(2, "0"), icon: "spark", unit: "d", visual: { labels: ["0 d", "30 d"] } },
+            { title: "Hours", subtitle: "Utc Synchronised", value: String(timeLeft.hours).padStart(2, "0"), icon: "clock", unit: "hrs", visual: { labels: ["00 h", "24 h"] } },
+            { title: "Minutes", subtitle: "Epoch Cycle", value: String(timeLeft.minutes).padStart(2, "0"), icon: "pulse", unit: "min", visual: { labels: ["00 m", "60 m"] } },
+            { title: "Seconds", subtitle: "Telemetry Tick", value: String(timeLeft.seconds).padStart(2, "0"), icon: "bolt", unit: "sec", visual: { labels: ["00 s", "60 s"] } },
+          ];
+
+          return e("div", { className: "countdown-wrapper" },
+            e("style", null, CSS),
+            e("div", { className: "countdown-header-block" },
+              e("h1", { className: "countdown-heading" }, "Agents At Work, Something is cooking"),
+              e("p", { className: "countdown-subtitle" }, "Website is underconstruction")
+            ),
+            e("div", { className: "countdown-grid" },
+              tiles.map((t, idx) => e(DotTile, Object.assign({ key: t.title }, t, { index: idx, tileColor: "#0d0d0d", dotColor: "#ffffff" })))
+            )
+          );
+        }
+
+        ReactDOM.createRoot(document.getElementById("root")).render(e(CountdownApp));
+    </script>
+</body>
+</html>
