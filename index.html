@@ -4,19 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Launch Countdown · HE-Systems</title>
-    <meta name="description" content="Agents At Work, Something is cooking. Website is underconstruction. Scheduled Public Launch: Sunday, 15 November 2026.">
+    <meta name="description" content="Dev in progress. Website is under construction. Scheduled Public Launch: Sunday, 15 November 2026.">
     <link rel="canonical" href="https://harryefe.github.io/launch/">
     <link rel="icon" type="image/png" href="assets/logo/logo_amber_symbol.png">
 
     <!-- OpenGraph & Social Sharing Meta Tags -->
-    <meta property="og:title" content="Agents At Work, Something is cooking · HE-Systems">
-    <meta property="og:description" content="Website is underconstruction. Scheduled Public Launch: Sunday, 15 November 2026.">
+    <meta property="og:title" content="Dev in progress · HE-Systems">
+    <meta property="og:description" content="Website is under construction. Scheduled Public Launch: Sunday, 15 November 2026.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://harryefe.github.io/launch/">
     <meta property="og:image" content="https://harryefe.github.io/launch/assets/logo/logo_amber_symbol.png">
     <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="Agents At Work, Something is cooking · HE-Systems">
-    <meta name="twitter:description" content="Website is underconstruction. Scheduled Public Launch: Sunday, 15 November 2026.">
+    <meta name="twitter:title" content="Dev in progress · HE-Systems">
+    <meta name="twitter:description" content="Website is under construction. Scheduled Public Launch: Sunday, 15 November 2026.">
     <meta name="twitter:image" content="https://harryefe.github.io/launch/assets/logo/logo_amber_symbol.png">
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -52,7 +52,11 @@
             display: block;
         }
         .header-nav {
-            position: relative;
+            /* Overlaid so the stage spans the full viewport and the clock centres on the page */
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
             z-index: 20;
             display: flex;
             align-items: center;
@@ -83,8 +87,9 @@
             flex: 1 1 0%;
             min-height: 0;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             padding: clamp(0.4rem, 1.2vh, 1.5rem) clamp(0.75rem, 2vw, 1.5rem);
             box-sizing: border-box;
         }
@@ -95,6 +100,7 @@
         #root, .countdown-stage-root {
             width: 100%;
             max-width: 56rem;
+            flex: 0 0 auto;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -109,19 +115,20 @@
         }
         .countdown-header-block {
             text-align: center;
-            margin-bottom: 0.75rem;
+            margin-top: 1rem;
+            margin-bottom: 0;
             max-width: 42rem;
             padding-left: 1rem;
             padding-right: 1rem;
         }
         @media (min-width: 640px) {
             .countdown-header-block {
-                margin-bottom: 1.5rem;
+                margin-top: 1.4rem;
             }
         }
         @media (min-width: 768px) {
             .countdown-header-block {
-                margin-bottom: 2rem;
+                margin-top: 1.75rem;
             }
         }
         .countdown-heading {
@@ -189,13 +196,120 @@
                 gap: 1.25rem;
             }
         }
+        /* Flexible spacer above the clock; paired with .play-zone's flex it centres the cluster */
+        .stage-spacer {
+            flex: 1 1 0%;
+            min-height: 0;
+        }
+        /* Centred vertical flow-slider: the play control for the DigitStream effect */
+        .play-zone {
+            position: relative;
+            z-index: 10;
+            flex: 1 1 0%;
+            min-height: 0;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.9rem;
+            pointer-events: auto;
+        }
+        .flow-slider {
+            position: relative;
+            height: clamp(120px, 26vh, 210px);
+            width: 40px;
+            cursor: grab;
+            touch-action: none;
+            outline-offset: 6px;
+            /* Rounded glass capsule frame, matching the dot-tile material */
+            border-radius: 999px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%), rgba(10, 10, 12, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 10px 26px -6px rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+        .flow-slider:active {
+            cursor: grabbing;
+        }
+        .flow-chevron {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.4);
+        }
+        .flow-chevron-up { top: 10px; }
+        .flow-chevron-down { bottom: 10px; }
+        .flow-track {
+            position: absolute;
+            top: 24px;
+            bottom: 24px;
+            left: 50%;
+            width: 2px;
+            transform: translateX(-50%);
+            background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.28) 18%, rgba(255,255,255,0.28) 82%, rgba(255,255,255,0) 100%);
+            border-radius: 2px;
+        }
+        .flow-thumb {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 22px;
+            height: 5px;
+            margin-top: -2.5px;
+            border-radius: 999px;
+            background: #ffffff;
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.65), inset 0 -1px 2px rgba(0, 0, 0, 0.25);
+            transform: translate(-50%, 0);
+            cursor: grab;
+        }
+        .flow-slider:not(.engaged) .flow-thumb {
+            animation: flowThumbBob 2.4s ease-in-out infinite;
+        }
+        @keyframes flowThumbBob {
+            0%, 100% { transform: translate(-50%, -24px); }
+            50% { transform: translate(-50%, 24px); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .flow-slider .flow-thumb { animation: none !important; }
+        }
+        .play-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+            font-family: 'JetBrains Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            text-align: center;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+            transition: opacity 1s ease;
+        }
+        .play-label-strong {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .play-label-sub {
+            font-size: 0.6rem;
+            color: rgba(255, 255, 255, 0.4);
+        }
+        .play-zone.dimmed .play-label {
+            opacity: 0.35;
+        }
+        @media (max-height: 540px) {
+            .play-zone { display: none; }
+            .stage-spacer { display: none; }
+            .main-stage { justify-content: center; }
+        }
         @media (max-height: 520px) {
             .header-nav {
                 padding-top: 0.25rem;
                 padding-bottom: 0.25rem;
             }
             .countdown-header-block {
-                margin-bottom: 0.35rem !important;
+                margin-top: 0.3rem !important;
+                margin-bottom: 0 !important;
             }
             .countdown-heading {
                 font-size: 1.1rem !important;
@@ -222,7 +336,8 @@
                 height: 16px !important;
             }
             .countdown-header-block {
-                margin-bottom: 0.2rem !important;
+                margin-top: 0.2rem !important;
+                margin-bottom: 0 !important;
             }
             .countdown-heading {
                 font-size: 0.85rem !important;
@@ -253,14 +368,29 @@
     <main class="main-stage">
         <noscript>
             <div style="position:relative;z-index:20;text-align:center;padding:2rem 1rem;max-width:36rem;margin:auto;">
-                <h1 style="font-size:clamp(1.5rem,4vw,2.5rem);font-weight:800;letter-spacing:-0.025em;color:#ffffff;margin-bottom:0.75rem;">Agents At Work, Something is cooking</h1>
-                <p style="font-size:clamp(0.95rem,2vw,1.15rem);color:#d4d4d4;line-height:1.6;margin-bottom:1.5rem;">Website is underconstruction</p>
+                <h1 style="font-size:clamp(1.5rem,4vw,2.5rem);font-weight:800;letter-spacing:-0.025em;color:#ffffff;margin-bottom:0.75rem;">Dev in progress</h1>
+                <p style="font-size:clamp(0.95rem,2vw,1.15rem);color:#d4d4d4;line-height:1.6;margin-bottom:1.5rem;">Website is under construction</p>
                 <div style="display:inline-block;padding:0.75rem 1.25rem;border-radius:0.75rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:#38bdf8;font-family:'JetBrains Mono',monospace;font-size:0.85rem;letter-spacing:0.04em;">
                     Target Launch: Sunday, 15 November 2026 (00:00:00 UTC)
                 </div>
             </div>
         </noscript>
+        <div class="stage-spacer" aria-hidden="true"></div>
         <div id="root" class="countdown-stage-root"></div>
+
+        <!-- Effect play control: centred vertical slider that stirs the DigitStream -->
+        <div class="play-zone select-none" id="play-zone">
+            <div class="flow-slider" id="flow-slider" role="slider" tabindex="0" aria-label="Stir the digit stream background" aria-orientation="vertical" aria-valuemin="-1" aria-valuemax="1" aria-valuenow="0">
+                <svg class="flow-chevron flow-chevron-up" width="12" height="7" viewBox="0 0 12 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 6l5-5 5 5"/></svg>
+                <div class="flow-track" aria-hidden="true"></div>
+                <div class="flow-thumb" id="flow-slider-thumb" aria-hidden="true"></div>
+                <svg class="flow-chevron flow-chevron-down" width="12" height="7" viewBox="0 0 12 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1l5 5 5-5"/></svg>
+            </div>
+            <div class="play-label">
+                <span class="play-label-strong">Drag · Scroll · Swipe</span>
+                <span class="play-label-sub">stir the digit stream</span>
+            </div>
+        </div>
     </main>
 
     <!-- DigitStream Engine Port -->
@@ -363,10 +493,7 @@
                 this.particles = Array.from({ length: target }, spawn);
 
                 let lastScrollY = window.scrollY;
-                const bump = (delta) => {
-                    this.flow += delta * 0.0007 * this.params.flowStrength;
-                    this.lastActivity = performance.now();
-                };
+                const bump = (delta) => this.impulse(delta);
                 window.addEventListener('scroll', () => {
                     bump(window.scrollY - lastScrollY);
                     lastScrollY = window.scrollY;
@@ -386,6 +513,12 @@
                 }, { passive: true });
 
                 this.start();
+            }
+
+            // Public: inject flow velocity (used by wheel/swipe listeners and the flow-slider control)
+            impulse(delta) {
+                this.flow += delta * 0.0007 * this.params.flowStrength;
+                this.lastActivity = performance.now();
             }
 
             resize() {
@@ -466,6 +599,72 @@
             const canvas = document.getElementById('digit-stream-canvas') || document.getElementById('ascii-canvas');
             if (canvas) {
                 window.digitStreamEngine = new DigitStreamEngine(canvas);
+            }
+
+            // Flow-slider play control: drag (or arrow keys) to stir the digit stream
+            const playZone = document.getElementById('play-zone');
+            const slider = document.getElementById('flow-slider');
+            const thumb = document.getElementById('flow-slider-thumb');
+            const dimLabel = () => { if (playZone) playZone.classList.add('dimmed'); };
+            window.addEventListener('wheel', dimLabel, { passive: true, once: true });
+            window.addEventListener('touchmove', dimLabel, { passive: true, once: true });
+
+            if (slider && thumb) {
+                const range = () => Math.max(24, slider.clientHeight / 2 - 32); // half-travel inside the capsule
+                const GAIN = 6;        // drag px -> flow impulse multiplier
+                let dragging = false;
+                let offset = 0;
+                let lastY = 0;
+                let settleRaf = null;
+
+                const paint = () => { thumb.style.transform = 'translate(-50%, ' + offset.toFixed(1) + 'px)'; };
+
+                const settle = () => {
+                    offset *= 0.85;
+                    if (Math.abs(offset) < 0.5) { offset = 0; paint(); settleRaf = null; return; }
+                    paint();
+                    settleRaf = requestAnimationFrame(settle);
+                };
+
+                slider.addEventListener('pointerdown', (e) => {
+                    dragging = true;
+                    lastY = e.clientY;
+                    slider.classList.add('engaged');
+                    dimLabel();
+                    slider.setPointerCapture(e.pointerId);
+                    if (settleRaf) { cancelAnimationFrame(settleRaf); settleRaf = null; }
+                    e.preventDefault();
+                });
+                slider.addEventListener('pointermove', (e) => {
+                    if (!dragging) return;
+                    const dy = e.clientY - lastY;
+                    lastY = e.clientY;
+                    const r = range();
+                    offset = Math.max(-r, Math.min(r, offset + dy));
+                    paint();
+                    if (window.digitStreamEngine) window.digitStreamEngine.impulse(dy * GAIN);
+                });
+                const release = () => {
+                    if (!dragging) return;
+                    dragging = false;
+                    settleRaf = requestAnimationFrame(settle);
+                };
+                slider.addEventListener('pointerup', release);
+                slider.addEventListener('pointercancel', release);
+
+                slider.addEventListener('keydown', (e) => {
+                    if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+                    e.preventDefault();
+                    slider.classList.add('engaged');
+                    dimLabel();
+                    const dir = e.key === 'ArrowDown' ? 1 : -1;
+                    const r = range();
+                    offset = Math.max(-r, Math.min(r, offset + dir * 18));
+                    paint();
+                    if (window.digitStreamEngine) window.digitStreamEngine.impulse(dir * 160);
+                    if (settleRaf) cancelAnimationFrame(settleRaf);
+                    settleRaf = requestAnimationFrame(settle);
+                });
             }
         });
     })();
@@ -663,12 +862,12 @@
 
           return e("div", { className: "countdown-wrapper" },
             e("style", null, CSS),
-            e("div", { className: "countdown-header-block" },
-              e("h1", { className: "countdown-heading" }, "Agents At Work, Something is cooking"),
-              e("p", { className: "countdown-subtitle" }, "Website is underconstruction")
-            ),
             e("div", { className: "countdown-grid" },
               tiles.map((t, idx) => e(DotTile, Object.assign({ key: t.title }, t, { index: idx, tileColor: "#0d0d0d", dotColor: "#ffffff" })))
+            ),
+            e("div", { className: "countdown-header-block" },
+              e("h1", { className: "countdown-heading" }, "Dev in progress"),
+              e("p", { className: "countdown-subtitle" }, "Website is under construction")
             )
           );
         }
